@@ -27,6 +27,7 @@ const UserSchema = mongoose.Schema(
         ref: "User",
       },
     ],
+    socketId: String,
   },
   {
     timestamps: true,

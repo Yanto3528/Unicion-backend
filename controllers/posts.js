@@ -1,6 +1,8 @@
 const Post = require("../models/Post");
+const Notification = require("../models/Notification");
 const errorResponse = require("../utils/errorResponse");
 const { deleteFile } = require("../fileUpload");
+const socket = require("../socket");
 
 // @description     Get all post
 // @Method/Route    GET /api/posts
@@ -101,11 +103,18 @@ exports.likeUnlikePost = async (req, res) => {
       });
     }
     const currentUser = req.user.id;
+    const io = socket.getIO();
     if (post.likes.includes(currentUser)) {
       const currentUserIndex = post.likes.indexOf(currentUser);
       post.likes.splice(currentUserIndex, 1);
     } else {
       post.likes.push(currentUser);
+      const notification = await Notification.create({
+        sender: req.user._id,
+        receiver: post.postedBy._id,
+        message: `${req.user.profile.firstName} ${req.user.profile.lastName} liked your post`,
+      });
+      io.to(post.postedBy.socketId).emit("get-notification", notification);
     }
     await post.save();
     res.status(201).json({

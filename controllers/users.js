@@ -72,20 +72,34 @@ exports.getUser = async (req, res) => {
 // @Method/Route    POST /api/users
 // @Access          Private
 exports.register = async (req, res) => {
+  const {
+    email,
+    password,
+    firstName,
+    lastName,
+    address,
+    gender,
+    birthDate,
+    country,
+    state,
+  } = req.body;
   try {
-    let user = await User.findOne({ email: req.body.email });
+    let user = await User.findOne({ email });
     if (user) {
       return res
         .status(400)
         .json({ error: "User already exists, please sign in" });
     }
     user = await User.create({
-      email: req.body.email,
-      password: req.body.password,
+      email,
+      password,
     });
     const profile = await Profile.create({
-      firstName: req.body.firstName,
-      lastName: req.body.lastName,
+      firstName,
+      lastName,
+      address: `${address}, ${state}, ${country}`,
+      gender,
+      birthDate,
       user: user._id,
     });
     const token = user.getSignedJwtToken();
@@ -155,7 +169,7 @@ exports.updatePassword = async (req, res) => {
     await user.save();
     res.status(200).json({
       success: true,
-      msg: "password updated successfully",
+      msg: "Password updated successfully",
     });
   } catch (error) {
     errorResponse(res, error);

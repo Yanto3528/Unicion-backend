@@ -33,12 +33,13 @@ const ProfileSchema = mongoose.Schema(
       zipcode: String,
       country: String,
     },
-    birthdate: Date,
+    birthDate: Date,
     gender: {
       type: String,
       enum: ["male", "female"],
     },
     occupation: String,
+    website: String,
     status: {
       type: String,
       enum: ["married", "single", "relationship"],

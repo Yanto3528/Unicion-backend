@@ -2,7 +2,14 @@ const { check, validationResult } = require("express-validator");
 
 exports.checkRegister = [
   check("firstName", "First name is required").not().isEmpty(),
-  check("lastName", "Last name is requird").not().isEmpty(),
+  check("lastName", "Last name is required").not().isEmpty(),
+  check("gender", "Please enter a valid gender")
+    .isIn(["male", "female"])
+    .optional(),
+  check("address", "Address is required").not().isEmpty(),
+  check("country", "Country is required").not().isEmpty(),
+  check("state", "State is required").not().isEmpty(),
+  check("birthDate", "Birth Date is required").not().isEmpty(),
   check("email", "Please enter a valid email").isEmail(),
   check("password", "Password must be at least 6 character or more").isLength({
     min: 6,
