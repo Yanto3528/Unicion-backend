@@ -49,7 +49,7 @@ exports.updateProfile = async (req, res) => {
       // ) {
       //   deleteFile(path.join(__dirname, `/uploads/${profile.avatar}`));
       // }
-      req.body.avatar = `/images/${req.file.filename}`;
+      req.body.avatar = path.join(__dirname, "images", req.file.filename);
     }
     profile = await Profile.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
