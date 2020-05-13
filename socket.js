@@ -11,7 +11,6 @@ exports.init = (server) => {
       const user = await User.findById(id);
       user.socketId = socket.id;
       await user.save();
-      console.log("Successfully online");
     });
     socket.on("disconnect", () => {
       console.log("user disconnected");

@@ -2,6 +2,9 @@
   "name": "Unicion",
   "version": "1.0.0",
   "description": "A fully featured social network",
+  "engines": {
+    "node": "v13.12.x"
+  },
   "main": "server.js",
   "scripts": {
     "start": "nodemon server"
