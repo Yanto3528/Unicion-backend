@@ -43,12 +43,12 @@ exports.updateProfile = async (req, res) => {
         .json({ error: "You are not allowed to update this profile" });
     }
     if (req.file) {
-      if (
-        profile.avatar &&
-        profile.avatar !== path.join(__dirname, `/images/no-photo.jpg`)
-      ) {
-        deleteFile(path.join(__dirname, `/uploads/${profile.avatar}`));
-      }
+      // if (
+      //   profile.avatar &&
+      //   profile.avatar !== path.join(__dirname, `/images/no-photo.jpg`)
+      // ) {
+      //   deleteFile(path.join(__dirname, `/uploads/${profile.avatar}`));
+      // }
       req.body.avatar = `/images/${req.file.filename}`;
     }
     profile = await Profile.findByIdAndUpdate(req.params.id, req.body, {
