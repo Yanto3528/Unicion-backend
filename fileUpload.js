@@ -3,7 +3,7 @@ const fs = require("fs");
 
 const fileStorage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "uploads/images");
+    cb(null, "/uploads/images");
   },
   filename: (req, file, cb) => {
     cb(null, `image-${new Date().getTime()}.${file.mimetype.split("/")[1]}`);

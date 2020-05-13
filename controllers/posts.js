@@ -45,7 +45,11 @@ exports.addPost = async (req, res) => {
   req.body.postedBy = req.user.id;
   try {
     if (req.file) {
-      req.body.image = `/images/${req.file.filename}`;
+      if (process.env.NODE_ENV === "development") {
+        req.body.image = `/images/${req.file.filename}`;
+      } else {
+        req.body.image = `${process.env.BACKEND_URL}/images/${req.files.filename}`;
+      }
     }
     const post = await Post.create(req.body);
     res.status(201).json({
