@@ -109,12 +109,14 @@ exports.likeUnlikePost = async (req, res) => {
       post.likes.splice(currentUserIndex, 1);
     } else {
       post.likes.push(currentUser);
-      const notification = await Notification.create({
-        sender: req.user._id,
-        receiver: post.postedBy._id,
-        message: `${req.user.profile.firstName} ${req.user.profile.lastName} liked your post`,
-      });
-      io.to(post.postedBy.socketId).emit("get-notification", notification);
+      if (post.postedBy._id.toString() !== currentUser) {
+        const notification = await Notification.create({
+          sender: req.user._id,
+          receiver: post.postedBy._id,
+          message: `${req.user.profile.name} liked your post`,
+        });
+        io.to(post.postedBy.socketId).emit("get-notification", notification);
+      }
     }
     await post.save();
     res.status(201).json({

@@ -10,10 +10,7 @@ exports.getProfiles = async (req, res) => {
           _id: { $ne: req.user.profile._id },
         },
         {
-          $or: [
-            { firstName: { $regex: req.query.s, $options: "i" } },
-            { lastName: { $regex: req.query.s, $options: "i" } },
-          ],
+          $or: [{ name: { $regex: req.query.s, $options: "i" } }],
         },
       ],
     })

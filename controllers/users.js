@@ -1,5 +1,7 @@
 const User = require("../models/User");
 const Profile = require("../models/Profile");
+const Notification = require("../models/Notification");
+const socket = require("../socket");
 const errorResponse = require("../utils/errorResponse");
 
 // @description     Get all users
@@ -75,14 +77,15 @@ exports.register = async (req, res) => {
   const {
     email,
     password,
-    firstName,
-    lastName,
     address,
     gender,
     birthDate,
     country,
     state,
   } = req.body;
+  let { firstName, lastName } = req.body;
+  firstName = firstName.trim();
+  lastName = lastName.trim();
   try {
     let user = await User.findOne({ email });
     if (user) {
@@ -95,8 +98,7 @@ exports.register = async (req, res) => {
       password,
     });
     const profile = await Profile.create({
-      firstName,
-      lastName,
+      name: `${firstName} ${lastName}`,
       address: `${address}, ${state}, ${country}`,
       gender,
       birthDate,
@@ -190,16 +192,18 @@ exports.sendFriendRequest = async (req, res) => {
     if (!user) {
       return res.status(404).json({ error: "No user found with this id" });
     }
-    const currentUser = req.user.id;
+    const currentUser = req.user;
     if (
-      user.friendRequests.includes(currentUser) ||
-      user.friends.includes(currentUser)
+      user.friendRequests.includes(currentUser._id) ||
+      user.friends.includes(currentUser._id)
     ) {
       return res.status(400).json({
         error: "You already sent a friend request or you're already friends.",
       });
     }
-    user.friendRequests.push(currentUser);
+    user.friendRequests.push(currentUser._id);
+    const io = socket.getIO();
+    io.to(user.socketId).emit("get-friend-request", currentUser);
     await user.save();
     res.status(200).json({
       success: true,
@@ -277,6 +281,13 @@ const friendRequestHandler = async (req, res, type = "") => {
   if (type === "accept") {
     currentUser.friends.push(user.id);
     user.friends.push(currentUser.id);
+    const io = socket.getIO();
+    const notification = await Notification.create({
+      sender: currentUser._id,
+      receiver: user._id,
+      message: `${currentUser.profile.name} accepted your friend request.`,
+    });
+    io.to(user.socketId).emit("get-notification", notification);
   }
   await currentUser.save();
   await user.save();

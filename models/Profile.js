@@ -3,12 +3,7 @@ const geocoder = require("../utils/geocoder");
 
 const ProfileSchema = mongoose.Schema(
   {
-    firstName: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    lastName: {
+    name: {
       type: String,
       required: true,
       trim: true,

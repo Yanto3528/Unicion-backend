@@ -1,5 +1,7 @@
 const Comment = require("../models/Comment");
 const Post = require("../models/Post");
+const Notification = require("../models/Notification");
+const socket = require("../socket");
 const errorResponse = require("../utils/errorResponse");
 
 // @description     Get all comment by specific post id
@@ -26,9 +28,19 @@ exports.addComment = async (req, res) => {
     if (!post) {
       return res.status(404).json({ error: "There is no post with this id" });
     }
+    const io = socket.getIO();
     req.body.postedBy = req.user.id;
     req.body.post = req.params.postId;
     const comment = await Comment.create(req.body);
+    if (comment.postedBy._id.toString() !== post.postedBy._id.toString()) {
+      const notification = await Notification.create({
+        sender: req.user._id,
+        receiver: post.postedBy._id,
+        message: `${comment.postedBy.profile.name} commented on your post.`,
+      });
+      console.log(post.postedBy.socketId);
+      io.to(post.postedBy.socketId).emit("get-notification", notification);
+    }
     res.status(201).json({
       success: true,
       data: comment,
@@ -78,11 +90,20 @@ exports.likeUnlikeComment = async (req, res) => {
       });
     }
     const currentUser = req.user.id;
+    const io = socket.getIO();
     if (comment.likes.includes(currentUser)) {
       const currentUserIndex = comment.likes.indexOf(currentUser);
       comment.likes.splice(currentUserIndex, 1);
     } else {
       comment.likes.push(currentUser);
+      if (comment.postedBy._id.toString() !== currentUser) {
+        const notification = await Notification.create({
+          sender: req.user._id,
+          receiver: comment.postedBy._id,
+          message: `${req.user.profile.name} liked your comment`,
+        });
+        io.to(comment.postedBy.socketId).emit("get-notification", notification);
+      }
     }
     await comment.save();
     res.status(201).json({

@@ -7,10 +7,11 @@ exports.init = (server) => {
   io = socketio(server);
   io.on("connection", (socket) => {
     console.log("New connection!!");
-    socket.on("online", async (id, callback) => {
+    socket.on("online", async (id) => {
       const user = await User.findById(id);
       user.socketId = socket.id;
       await user.save();
+      console.log("Successfully online");
     });
     socket.on("disconnect", () => {
       console.log("user disconnected");
@@ -21,9 +22,4 @@ exports.init = (server) => {
 exports.getIO = () => {
   if (!io) throw new Error("Socket io has not been initialized yet");
   return io;
-};
-
-exports.getSocket = () => {
-  if (!socket) throw new Error("No socket found");
-  return socket;
 };
