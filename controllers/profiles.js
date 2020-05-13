@@ -1,6 +1,7 @@
 const Profile = require("../models/Profile");
 const errorResponse = require("../utils/errorResponse");
 const { deleteFile } = require("../fileUpload");
+const path = require("path");
 
 exports.getProfiles = async (req, res) => {
   try {
@@ -42,8 +43,11 @@ exports.updateProfile = async (req, res) => {
         .json({ error: "You are not allowed to update this profile" });
     }
     if (req.file) {
-      if (profile.avatar && profile.avatar !== "/images/no-photo.jpg") {
-        deleteFile(`uploads/${profile.avatar}`);
+      if (
+        profile.avatar &&
+        profile.avatar !== path.join(__dirname, `/images/no-photo.jpg`)
+      ) {
+        deleteFile(path.join(__dirname, `/uploads/${profile.avatar}`));
       }
       req.body.avatar = `/images/${req.file.filename}`;
     }
