@@ -4,6 +4,8 @@ const dotenv = require("dotenv");
 const connectDB = require("./db");
 const path = require("path");
 const socket = require("./socket");
+var cloudinary = require("cloudinary");
+var cloudinaryStorage = require("multer-storage-cloudinary");
 
 dotenv.config({ path: "./config/config.env" });
 

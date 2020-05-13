@@ -1,9 +1,12 @@
 const multer = require("multer");
+const cloudinary = require("cloudinary");
+const cloudinaryStorage = require("multer-storage-cloudinary");
 const fs = require("fs");
+const path = require("path");
 
-const fileStorage = multer.diskStorage({
+const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "uploads/images");
+    cb(null, path.join(__dirname, "/uploads/images"));
   },
   filename: (req, file, cb) => {
     cb(null, `image-${new Date().getTime()}.${file.mimetype.split("/")[1]}`);
@@ -23,7 +26,7 @@ const limits = {
 };
 
 const uploadImage = multer({
-  storage: fileStorage,
+  storage,
   fileFilter,
   limits,
 }).single("image");
