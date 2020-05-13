@@ -17,8 +17,8 @@ connectDB();
 
 const app = express();
 
-app.use(cors());
 app.use(express.json());
+app.use(cors({ origin: "https://unicion.netlify.app" }));
 
 app.use("/images", express.static(path.join(__dirname, "uploads", "images")));
 
