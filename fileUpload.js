@@ -2,14 +2,19 @@ const multer = require("multer");
 const cloudinary = require("cloudinary");
 const cloudinaryStorage = require("multer-storage-cloudinary");
 const fs = require("fs");
-const path = require("path");
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, "uploads", "images"));
-  },
-  filename: (req, file, cb) => {
-    cb(null, `image_${new Date().getTime()}.${file.mimetype.split("/")[1]}`);
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+const storage = cloudinaryStorage({
+  cloudinary: cloudinary,
+  folder: "unicion",
+  allowedFormats: ["jpg", "png"],
+  filename: function (req, file, cb) {
+    cb(undefined, `image_${new Date().getTime()}`);
   },
 });
 
@@ -41,13 +46,5 @@ exports.uploadFileImage = (req, res, next) => {
       return res.json(error);
     }
     next();
-  });
-};
-
-exports.deleteFile = (filePath) => {
-  fs.unlink(filePath, (err) => {
-    if (err) {
-      throw err;
-    }
   });
 };

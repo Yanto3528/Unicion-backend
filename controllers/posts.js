@@ -1,7 +1,6 @@
 const Post = require("../models/Post");
 const Notification = require("../models/Notification");
 const errorResponse = require("../utils/errorResponse");
-const { deleteFile } = require("../fileUpload");
 const socket = require("../socket");
 
 // @description     Get all post
@@ -45,11 +44,7 @@ exports.addPost = async (req, res) => {
   req.body.postedBy = req.user.id;
   try {
     if (req.file) {
-      if (process.env.NODE_ENV === "development") {
-        req.body.image = `/images/${req.file.filename}`;
-      } else {
-        req.body.image = `${process.env.BACKEND_URL}/images/${req.files.filename}`;
-      }
+      req.body.image = req.file.secure_url;
     }
     const post = await Post.create(req.body);
     res.status(201).json({
@@ -78,10 +73,7 @@ exports.updatePost = async (req, res) => {
         .json({ error: "You are not allowed to update this post" });
     }
     if (req.file) {
-      if (post.image) {
-        deleteFile(`uploads/${post.image}`);
-      }
-      req.body.image = `/images/${req.file.filename}`;
+      req.body.image = req.file.secure_url;
     }
     post = await Post.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
@@ -148,7 +140,6 @@ exports.deletePost = async (req, res) => {
         .status(400)
         .json({ error: "You are not allowed to delete this post" });
     }
-    if (post.image) deleteFile(`uploads/${post.image}`);
     await post.remove();
     res.status(201).json({
       success: true,

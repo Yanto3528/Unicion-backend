@@ -2,10 +2,8 @@ const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const connectDB = require("./db");
-const path = require("path");
 const socket = require("./socket");
-var cloudinary = require("cloudinary");
-var cloudinaryStorage = require("multer-storage-cloudinary");
+const helmet = require("helmet");
 
 dotenv.config({ path: "./config/config.env" });
 
@@ -19,10 +17,9 @@ connectDB();
 
 const app = express();
 
+app.use(helmet());
 app.use(express.json());
-app.use(cors({ origin: "https://unicion.netlify.app" }));
-
-app.use("/images", express.static(path.join(__dirname, "uploads", "images")));
+app.use(cors());
 
 app.use("/api/posts", posts);
 app.use("/api/users", users);
